@@ -429,7 +429,7 @@ open class WBDevice: NSObject, Jsonifiable, CBPeripheralDelegate {
             transaction.resolveAsSuccess()
         }
     }
-    
+
     func jsonify() -> String {
         let props: [String: Any] = [
             "id": self.deviceId.uuidString,

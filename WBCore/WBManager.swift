@@ -90,24 +90,7 @@ open class WBManager: NSObject, CBCentralManagerDelegate, WKScriptMessageHandler
     }
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
-
-        if let filters = self.filters,
-            !self._peripheral(peripheral, isIncludedBy: filters) {
-            return
-        }
-
-        guard self.pickerDevices.first(where: {$0.peripheral == peripheral}) == nil else {
-            return
-        }
-
-        NSLog("New peripheral \(peripheral.name ?? "<no name>") discovered")
-        let device = WBDevice(
-            peripheral: peripheral, advertisementData: advertisementData,
-            RSSI: RSSI, manager: self)
-        if !self.pickerDevices.contains(where: {$0 == device}) {
-            self.pickerDevices.append(device)
-            self.updatePickerData()
-        }
+        self._triageDetected(peripheral: peripheral)
     }
     
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -247,6 +230,7 @@ open class WBManager: NSObject, CBCentralManagerDelegate, WKScriptMessageHandler
         self._clearPickerView()
         self.filters = nil
         centralManager.scanForPeripherals(withServices: nil, options: nil)
+
     }
 
     func scanForPeripherals(with filters:[[String: AnyObject]]) {
@@ -268,13 +252,15 @@ open class WBManager: NSObject, CBCentralManagerDelegate, WKScriptMessageHandler
         self._clearPickerView();
         self.filters = filters
         centralManager.scanForPeripherals(withServices: servicesCBUUID, options: nil)
+
+        let ps = centralManager.retrieveConnectedPeripherals(withServices: servicesCBUUID)
+        NSLog("peripherals found \(ps)")
     }
     private func stopScanForPeripherals() {
         if self.centralManager.state == .poweredOn {
             self.centralManager.stopScan()
         }
         self._clearPickerView()
-
     }
     
     func updatePickerData(){
@@ -342,5 +328,29 @@ open class WBManager: NSObject, CBCentralManagerDelegate, WKScriptMessageHandler
     private func _clearPickerView() {
         self.pickerDevices = []
         self.updatePickerData()
+    }
+
+    private func _triageDetected(peripheral: CBPeripheral) {
+        NSLog("_triageDetected \(peripheral)")
+
+        if let filters = self.filters,
+            !self._peripheral(peripheral, isIncludedBy: filters) {
+            NSLog("Not included by filters")
+            return
+        }
+
+        guard self.pickerDevices.first(where: {$0.peripheral == peripheral}) == nil else {
+            NSLog("Already picked")
+            return
+        }
+
+        NSLog("New peripheral \(peripheral.name ?? "<no name>") discovered")
+        let device = WBDevice(
+            peripheral: peripheral, advertisementData: advertisementData,
+            RSSI: RSSI, manager: self)
+        if !self.pickerDevices.contains(where: {$0 == device}) {
+            self.pickerDevices.append(device)
+            self.updatePickerData()
+        }
     }
 }
