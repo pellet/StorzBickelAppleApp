@@ -199,14 +199,14 @@ class ViewController: UIViewController, UITextFieldDelegate, WKNavigationDelegat
             loadURL(url)
         }
         else {
-            var lastLocation: String
-            if let prefLoc = ud.value(forKey: WBWebViewContainerController.prefKeys.lastLocation.rawValue) as? String {
-            lastLocation = prefLoc
-            } else {
-                let svers = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
-                lastLocation = "https://www.greenparksoftware.co.uk/projects/webble/\(svers)"
-            }
-            self.loadLocation(lastLocation)
+//            var lastLocation: String
+//            if let prefLoc = ud.value(forKey: WBWebViewContainerController.prefKeys.lastLocation.rawValue) as? String {
+//            lastLocation = prefLoc
+//            } else {
+//                let svers = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
+//                lastLocation = "https://www.greenparksoftware.co.uk/projects/webble/\(svers)"
+//            }
+            self.loadLocation("https://app.storz-bickel.com")
         }
 
         // Maybe re-open console
